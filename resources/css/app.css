@@ -1,0 +1,288 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Display:wght@400;500;700&display=swap');
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Google Sans', 'Roboto', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Google Sans Display', 'Google Sans', sans-serif;
+
+    /* MD3 Primary — Indigo/Purple */
+    --color-primary:        #6750A4;
+    --color-on-primary:     #FFFFFF;
+    --color-primary-container: #EADDFF;
+    --color-on-primary-container: #21005D;
+
+    /* MD3 Secondary */
+    --color-secondary:      #625B71;
+    --color-secondary-container: #E8DEF8;
+
+    /* MD3 Surface */
+    --color-surface:        #FFFBFE;
+    --color-surface-variant: #E7E0EC;
+    --color-on-surface:     #1C1B1F;
+    --color-on-surface-variant: #49454F;
+    --color-outline:        #79747E;
+    --color-outline-variant: #CAC4D0;
+
+    /* MD3 Error */
+    --color-error:          #B3261E;
+    --color-error-container: #F9DEDC;
+}
+
+/* ── MD3 Elevation (tonal surface overlays) ───────────────────────────── */
+.md-elevation-1 { box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 1px 3px 1px rgba(0,0,0,.08); }
+.md-elevation-2 { box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 2px 6px 2px rgba(0,0,0,.08); }
+.md-elevation-3 { box-shadow: 0 4px 8px 3px rgba(0,0,0,.10), 0 1px 3px rgba(0,0,0,.12); }
+.md-elevation-4 { box-shadow: 0 6px 10px 4px rgba(0,0,0,.10), 0 2px 3px rgba(0,0,0,.12); }
+.md-elevation-5 { box-shadow: 0 8px 12px 6px rgba(0,0,0,.10), 0 4px 4px rgba(0,0,0,.12); }
+
+/* ── MD3 Ripple ───────────────────────────────────────────────────────── */
+.md-ripple {
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+.md-ripple::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    border-radius: inherit;
+    transition: opacity 0.2s;
+}
+.md-ripple:hover::after  { opacity: 0.08; }
+.md-ripple:active::after { opacity: 0.12; }
+
+/* ── MD3 State layers ─────────────────────────────────────────────────── */
+.md-state-hover:hover   { background-color: rgba(103,80,164,.08); }
+.md-state-active:active { background-color: rgba(103,80,164,.12); }
+
+/* ── MD3 Filled Button ────────────────────────────────────────────────── */
+.md-btn-filled {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    background: #6750A4;
+    color: #fff;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.00625rem;
+    transition: box-shadow 0.2s, background 0.2s;
+    cursor: pointer;
+    border: none;
+}
+.md-btn-filled:hover  { background: #7965AF; box-shadow: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15); }
+.md-btn-filled:active { background: #6750A4; box-shadow: none; }
+
+/* ── MD3 Tonal Button ─────────────────────────────────────────────────── */
+.md-btn-tonal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    background: #E8DEF8;
+    color: #21005D;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.00625rem;
+    transition: box-shadow 0.2s, background 0.2s;
+    cursor: pointer;
+    border: none;
+}
+.md-btn-tonal:hover  { background: #D8CEE8; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+
+/* ── MD3 Text Button ──────────────────────────────────────────────────── */
+.md-btn-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    color: #6750A4;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.00625rem;
+    transition: background 0.2s;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+.md-btn-text:hover  { background: rgba(103,80,164,.08); }
+.md-btn-text:active { background: rgba(103,80,164,.12); }
+
+/* ── MD3 Outlined Button ──────────────────────────────────────────────── */
+.md-btn-outlined {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    color: #6750A4;
+    border: 1px solid #79747E;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.00625rem;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: pointer;
+    background: transparent;
+}
+.md-btn-outlined:hover { background: rgba(103,80,164,.08); border-color: #6750A4; }
+
+/* ── MD3 Card ─────────────────────────────────────────────────────────── */
+.md-card {
+    background: #FFFBFE;
+    border-radius: 12px;
+    border: 1px solid #E7E0EC;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+.md-card:hover { box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 2px 6px 2px rgba(0,0,0,.08); border-color: #CAC4D0; }
+
+/* ── MD3 Chip ─────────────────────────────────────────────────────────── */
+.md-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border: 1px solid #CAC4D0;
+    background: transparent;
+    color: #49454F;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.md-chip:hover { background: rgba(103,80,164,.08); border-color: #6750A4; color: #6750A4; }
+.md-chip.active { background: #E8DEF8; border-color: #6750A4; color: #21005D; }
+
+/* ── MD3 Input field ──────────────────────────────────────────────────── */
+.md-input {
+    width: 100%;
+    background: #FFFBFE;
+    border: 1px solid #79747E;
+    border-radius: 4px 4px 0 0;
+    border-bottom-width: 2px;
+    padding: 0.875rem 1rem 0.5rem;
+    font-size: 1rem;
+    color: #1C1B1F;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.md-input:focus { border-color: #6750A4; }
+
+/* ── MD3 Navigation rail item ─────────────────────────────────────────── */
+.md-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: 100px;
+    color: #49454F;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    text-decoration: none;
+    position: relative;
+}
+.md-nav-item:hover { background: rgba(103,80,164,.08); color: #6750A4; }
+.md-nav-item.active { color: #6750A4; }
+.md-nav-item.active .md-nav-indicator {
+    background: #E8DEF8;
+    border-radius: 100px;
+    position: absolute;
+    inset: 0 0.25rem;
+    z-index: -1;
+}
+
+/* ── Sidebar nav link (MD3 style) ─────────────────────────────────────── */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #49454F;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+}
+.sidebar-link:hover { background: rgba(103,80,164,.08); color: #6750A4; }
+.sidebar-link.active { background: #E8DEF8; color: #21005D; }
+
+/* ── Context menu item ────────────────────────────────────────────────── */
+.ctx-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: #1C1B1F;
+    cursor: pointer;
+    transition: background 0.1s;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    text-decoration: none;
+}
+.ctx-item:hover { background: #F7F2FA; }
+
+/* ── SortableJS drag states ───────────────────────────────────────────── */
+.sortable-ghost   { opacity: 0.2 !important; border: 2px dashed #6750A4 !important; }
+.sortable-chosen  { cursor: grabbing !important; }
+.sortable-drag    { box-shadow: 0 8px 12px 6px rgba(0,0,0,.15), 0 4px 4px rgba(0,0,0,.12) !important; transform: rotate(1.5deg) scale(1.02) !important; }
+
+/* ── Trash zone ───────────────────────────────────────────────────────── */
+#trash-zone {
+    opacity: 0;
+    transform: scale(0.85);
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(.2,0,0,1), transform 0.2s cubic-bezier(.2,0,0,1);
+}
+#trash-inner {
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    border: 2px dashed #F2B8B5;
+    background: #FFFBFE;
+    border-radius: 16px;
+}
+#trash-icon { color: #B3261E; transition: color 0.15s; }
+
+/* ── Scrollbar styling ────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CAC4D0; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #79747E; }
+
+/* ── Alpine cloak ─────────────────────────────────────────────────────── */
+[x-cloak] { display: none !important; }
+
+/* ── MD3 Dialog (modal) ───────────────────────────────────────────────── */
+.md-dialog {
+    background: #FFFBFE;
+    border-radius: 28px;
+    box-shadow: 0 8px 12px 6px rgba(0,0,0,.15), 0 4px 4px rgba(0,0,0,.12);
+}
+
+/* ── MD3 Divider ──────────────────────────────────────────────────────── */
+.md-divider { border-color: #E7E0EC; }
+
+/* ── Priority chips ───────────────────────────────────────────────────── */
+.priority-high   { background: #F9DEDC; color: #B3261E; border-color: #F2B8B5; }
+.priority-medium { background: #FEF7E0; color: #7A5900; border-color: #F5DFA0; }
+.priority-low    { background: #D7F5E3; color: #1A6B3A; border-color: #A8E6C0; }
