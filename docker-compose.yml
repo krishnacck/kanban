@@ -1,0 +1,87 @@
+version: '3.9'
+
+services:
+
+  # ── PHP-FPM application ──────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kanban_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor          # keep container vendor
+      - /var/www/html/node_modules    # keep container node_modules
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kanban
+
+  # ── Nginx web server ─────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: kanban_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - kanban
+
+  # ── MySQL database ───────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: kanban_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+      MYSQL_DATABASE: ${DB_DATABASE:-kanban}
+      MYSQL_USER: ${DB_USERNAME:-kanban}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-kanban_secret}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootsecret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kanban
+
+  # ── Queue worker ─────────────────────────────────────────────────────
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kanban_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kanban
+
+volumes:
+  db_data:
+
+networks:
+  kanban:
+    driver: bridge

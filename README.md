@@ -1,58 +1,105 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# KanbanPro
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A multi-category Kanban task management app built with Laravel 13, Alpine.js, SortableJS, and Material Design 3.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Multi-category board (vertical lanes) × status columns (horizontal)
+- Drag-and-drop tasks between columns — persisted via AJAX
+- Drag to trash bin to delete
+- One-click complete button (Asana-style circle)
+- Quick-add tasks inline without opening a modal
+- Priority arrows (↑↓) on each card to change priority instantly
+- Right-click context menu on tasks, categories, and statuses
+- Google OAuth + email/password login
+- Role-based access (admin / user)
+- Material Design 3 UI
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Quick Start (Docker)
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Clone and configure
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/krishnacck/kanban.git
+cd kanban
+cp .env.docker .env
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Edit `.env` and set:
+- `APP_KEY` — run `php artisan key:generate --show` locally or set any base64 string
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` — from [Google Cloud Console](https://console.cloud.google.com/)
+- `GOOGLE_REDIRECT_URI` — set to `http://localhost:8000/auth/google/callback`
 
-## Contributing
+### 2. Start containers
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+docker compose up -d --build
+```
 
-## Code of Conduct
+This starts:
+| Container | Role | Port |
+|---|---|---|
+| `kanban_app` | PHP 8.3-FPM | internal |
+| `kanban_nginx` | Nginx web server | **8000** |
+| `kanban_db` | MySQL 8.0 | 3306 |
+| `kanban_queue` | Laravel queue worker | internal |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Run migrations and seed
 
-## Security Vulnerabilities
+```bash
+docker compose exec app php artisan migrate --force
+docker compose exec app php artisan db:seed --force
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Open the app
 
-## License
+Visit **http://localhost:8000**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Default credentials (from seeder):
+- **Admin**: `admin@example.com` / `password`
+- **User**: `alice@example.com` / `password`
+
+---
+
+## Local Development (without Docker)
+
+```bash
+cp .env.example .env
+# Set DB_CONNECTION=sqlite and touch database/database.sqlite
+php artisan key:generate
+php artisan migrate --seed
+npm install && npm run build
+php artisan serve
+```
+
+---
+
+## Running Tests
+
+```bash
+php artisan test
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `DB_CONNECTION` | `mysql` (Docker) or `sqlite` (local) |
+| `DB_HOST` | `db` in Docker, `127.0.0.1` locally |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `GOOGLE_REDIRECT_URI` | Must match Google Console authorized redirect URI |
+
+---
+
+## Tech Stack
+
+- **Backend**: Laravel 13, PHP 8.3
+- **Frontend**: Alpine.js, SortableJS, Tailwind CSS v4, Material Design 3
+- **Auth**: Laravel Socialite (Google OAuth)
+- **DB**: MySQL (Docker) / SQLite (local)
+- **Tests**: PestPHP with property-based tests
