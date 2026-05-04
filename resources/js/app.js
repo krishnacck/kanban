@@ -13,6 +13,8 @@ function boardApp() {
             status_id: '',
             assigned_to: '',
         },
+        groupRow: 'category',   // category | priority | assignee | month | none
+        groupCol: 'status',     // status | priority | month
         modal: {
             open: false,
             taskId: null,
@@ -245,6 +247,9 @@ function boardApp() {
         async applyFilters() {
             const params = new URLSearchParams();
             Object.entries(this.filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+            // Pass grouping to server so it can return correct data
+            params.set('group_row', this.groupRow);
+            params.set('group_col', this.groupCol);
 
             const res = await fetch(`${window.__BOARD_URL__}?${params}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -253,6 +258,11 @@ function boardApp() {
                 document.getElementById('board-container').innerHTML = await res.text();
                 this.$nextTick(() => this.initSortable());
             }
+        },
+
+        // Re-render with current grouping without re-fetching
+        renderGrouped() {
+            this.applyFilters();
         },
 
         filterByCountry(id) { this.filters.country_id = id; this.applyFilters(); },

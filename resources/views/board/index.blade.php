@@ -60,7 +60,6 @@
 @section('content')
 <div x-data="boardApp()" x-init="init()" style="display:flex; flex-direction:column; height:100vh; overflow:hidden;"
     @add-category.window="addCategory($event.detail)">
-
     {{-- MD3 Top App Bar --}}
     <div style="background:#FFFBFE; border-bottom:1px solid #E7E0EC; padding:0.75rem 1.5rem; display:flex; align-items:center; gap:1rem; position:sticky; top:0; z-index:20; box-shadow:0 1px 2px rgba(0,0,0,.08);">
         <h1 style="font-size:1.375rem; font-weight:600; color:#1C1B1F; letter-spacing:-0.01em; margin-right:0.5rem; white-space:nowrap;">Kanban Board</h1>
@@ -103,7 +102,31 @@
             </button>
         </div>
 
-        <div style="margin-left:auto;">
+        <div style="margin-left:auto; display:flex; align-items:center; gap:0.75rem;">
+
+            {{-- Group By controls --}}
+            <div style="display:flex;align-items:center;gap:0.375rem;background:#F4EFF4;border-radius:100px;padding:0.25rem 0.75rem;border:1px solid #CAC4D0;">
+                <span style="font-size:0.75rem;color:#79747E;font-weight:500;white-space:nowrap;">Rows:</span>
+                <select x-model="groupRow" @change="renderGrouped()"
+                    style="background:transparent;border:none;font-size:0.8125rem;color:#1C1B1F;outline:none;cursor:pointer;font-weight:500;">
+                    <option value="category">Category</option>
+                    <option value="priority">Priority</option>
+                    <option value="assignee">Assignee</option>
+                    <option value="month">Due Month</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:0.375rem;background:#F4EFF4;border-radius:100px;padding:0.25rem 0.75rem;border:1px solid #CAC4D0;">
+                <span style="font-size:0.75rem;color:#79747E;font-weight:500;white-space:nowrap;">Cols:</span>
+                <select x-model="groupCol" @change="renderGrouped()"
+                    style="background:transparent;border:none;font-size:0.8125rem;color:#1C1B1F;outline:none;cursor:pointer;font-weight:500;">
+                    <option value="status">Status</option>
+                    <option value="priority">Priority</option>
+                    <option value="month">Due Month</option>
+                </select>
+            </div>
+
             <button @click="openCreateModal()" class="md-btn-filled md-ripple">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 Add Task
@@ -113,7 +136,7 @@
 
     {{-- Board grid: fills remaining height, scrolls both axes --}}
     <div id="board-container" class="flex-1 overflow-auto min-h-0">
-        @include('board._grid')
+        @include('board._grid_dynamic')
     </div>
 
     {{-- Trash drop zone — floats bottom-right, appears while dragging --}}
