@@ -14,6 +14,7 @@ class UpdateStatusRequest extends FormRequest
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'color' => ['sometimes', 'required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'order' => ['sometimes', 'required', 'integer', 'min:0'],
+            'is_completed' => ['sometimes', 'boolean'],
         ];
     }
 }

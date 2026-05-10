@@ -14,6 +14,7 @@ class StoreStatusRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'order' => ['required', 'integer', 'min:0'],
+            'is_completed' => ['sometimes', 'boolean'],
         ];
     }
 }

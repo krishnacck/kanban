@@ -29,6 +29,7 @@
                     <th class="px-4 py-3 text-left">Name</th>
                     <th class="px-4 py-3 text-left">Color</th>
                     <th class="px-4 py-3 text-left">Order</th>
+                    <th class="px-4 py-3 text-left">Type</th>
                     <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
             </thead>
@@ -42,10 +43,15 @@
                         </span>
                         <form x-show="editing" method="POST" action="{{ route('statuses.update', $status) }}">
                             @csrf @method('PUT')
-                            <div class="flex gap-2 flex-wrap">
+                            <div class="flex gap-2 flex-wrap items-center">
                                 <input type="text" name="name" value="{{ $status->name }}" class="border rounded px-2 py-1 text-sm w-32" required>
                                 <input type="color" name="color" value="{{ $status->color }}" class="border rounded h-8 w-10">
                                 <input type="number" name="order" value="{{ $status->order }}" class="border rounded px-2 py-1 text-sm w-16" required>
+                                <label class="flex items-center gap-1 text-xs text-gray-600 cursor-pointer">
+                                    <input type="hidden" name="is_completed" value="0">
+                                    <input type="checkbox" name="is_completed" value="1" {{ $status->is_completed ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600">
+                                    Done
+                                </label>
                                 <button type="submit" class="bg-indigo-600 text-white px-2 py-1 rounded text-xs">Save</button>
                                 <button type="button" @click="editing = false" class="text-gray-500 px-2 py-1 rounded text-xs">Cancel</button>
                             </div>
@@ -55,6 +61,13 @@
                         <span class="font-mono text-xs text-gray-500">{{ $status->color }}</span>
                     </td>
                     <td class="px-4 py-3 text-gray-500" x-show="!editing">{{ $status->order }}</td>
+                    <td class="px-4 py-3" x-show="!editing">
+                        @if($status->is_completed)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                        @else
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">In Progress</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-right" x-show="!editing">
                         <button @click="editing = true" class="text-indigo-600 hover:underline text-xs mr-3">Edit</button>
                         <form method="POST" action="{{ route('statuses.destroy', $status) }}" class="inline"
@@ -65,7 +78,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">No statuses yet.</td></tr>
+                <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">No statuses yet.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -89,6 +102,14 @@
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Order *</label>
                     <input type="number" name="order" value="0" class="w-full border rounded-lg px-3 py-2 text-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                        <input type="hidden" name="is_completed" value="0">
+                        <input type="checkbox" name="is_completed" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        Mark as "Completed" status
+                    </label>
+                    <p class="text-xs text-gray-500 mt-1">Tasks moved to this status will be treated as done.</p>
                 </div>
                 <div class="flex justify-end gap-2">
                     <button type="button" @click="open = false" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>

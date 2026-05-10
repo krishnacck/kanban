@@ -5,6 +5,54 @@
 @section('sidebar-countries')
 <div style="padding:0 0.75rem 0.75rem; border-top:1px solid #E7E0EC; margin-top:0.5rem;">
     <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0.25rem 0.375rem;">
+        <span style="font-size:0.6875rem; font-weight:600; color:#79747E; letter-spacing:0.05em; text-transform:uppercase;">Statuses</span>
+    </div>
+
+    @foreach ($statuses as $status)
+    <div class="sidebar-link" style="font-size:0.8125rem; display:flex; align-items:center; gap:0.5rem; cursor:default;">
+        <span style="width:10px; height:10px; border-radius:50%; background:{{ $status->color }}; flex-shrink:0;"></span>
+        <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $status->name }}</span>
+        @if($status->is_completed)
+            <span style="font-size:0.6rem; background:#D1FAE5; color:#065F46; border-radius:100px; padding:0.0625rem 0.375rem; font-weight:600;">Done</span>
+        @endif
+    </div>
+    @endforeach
+
+    @if($statuses->isEmpty())
+    <div style="padding:0.75rem 0.5rem; text-align:center; color:#79747E; font-size:0.8125rem;">
+        No statuses yet. Add one below.
+    </div>
+    @endif
+
+    {{-- Quick add status --}}
+    <div x-data="{ adding: false, name: '' }" style="margin-top:0.25rem;">
+        <button x-show="!adding" @click="adding = true; $nextTick(() => $refs.statusInput.focus())"
+            class="sidebar-link" style="color:#79747E; font-size:0.8125rem;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add status
+        </button>
+        <div x-show="adding" x-cloak style="margin-top:0.25rem; background:#F7F2FA; border-radius:12px; padding:0.5rem;">
+            <input x-ref="statusInput" x-model="name" type="text" placeholder="Status name…"
+                style="width:100%; background:transparent; border:none; outline:none; font-size:0.8125rem; color:#1C1B1F; padding:0.25rem 0.25rem 0.375rem; border-bottom:2px solid #6750A4;"
+                @keydown.enter="if(name.trim()){ $dispatch('add-status', name.trim()); name=''; adding=false; }"
+                @keydown.escape="adding=false; name=''">
+            <div style="display:flex; gap:0.375rem; margin-top:0.5rem;">
+                <button @click="if(name.trim()){ $dispatch('add-status', name.trim()); name=''; adding=false; }"
+                    style="flex:1; font-size:0.75rem; background:#6750A4; color:#fff; border:none; border-radius:100px; padding:0.375rem; cursor:pointer; font-weight:500;">Add</button>
+                <button @click="adding=false; name=''"
+                    style="flex:1; font-size:0.75rem; background:transparent; color:#49454F; border:1px solid #CAC4D0; border-radius:100px; padding:0.375rem; cursor:pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ route('statuses.index') }}" class="sidebar-link" style="color:#79747E; font-size:0.8125rem; margin-top:0.125rem; text-decoration:none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Manage statuses
+    </a>
+</div>
+
+<div style="padding:0 0.75rem 0.75rem; border-top:1px solid #E7E0EC; margin-top:0.5rem;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0.25rem 0.375rem;">
         <span style="font-size:0.6875rem; font-weight:600; color:#79747E; letter-spacing:0.05em; text-transform:uppercase;">Categories</span>
     </div>
 
@@ -59,7 +107,8 @@
 
 @section('content')
 <div x-data="boardApp()" x-init="init()" style="display:flex; flex-direction:column; height:100vh; overflow:hidden;"
-    @add-category.window="addCategory($event.detail)">
+    @add-category.window="addCategory($event.detail)"
+    @add-status.window="addStatus($event.detail)">
     {{-- MD3 Top App Bar --}}
     <div style="background:#FFFBFE; border-bottom:1px solid #E7E0EC; padding:0.75rem 1.5rem; display:flex; align-items:center; gap:1rem; position:sticky; top:0; z-index:20; box-shadow:0 1px 2px rgba(0,0,0,.08);">
         <h1 style="font-size:1.375rem; font-weight:600; color:#1C1B1F; letter-spacing:-0.01em; margin-right:0.5rem; white-space:nowrap;">Kanban Board</h1>
@@ -223,6 +272,11 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Add task here
                 </button>
+                <div class="border-t border-gray-100 my-1"></div>
+                <a :href="window.__STATUSES_ADMIN_URL__" class="ctx-item">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Manage statuses
+                </a>
             </div>
         </template>
     </div>
@@ -253,5 +307,6 @@
     window.__USERS__ = @json($users->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'avatar' => $u->avatar]));
     window.__BOARD_URL__ = '/board';
     window.__COUNTRIES_ADMIN_URL__ = '{{ route("countries.index") }}';
+    window.__STATUSES_ADMIN_URL__ = '{{ route("statuses.index") }}';
 </script>
 @endsection

@@ -292,6 +292,20 @@ function boardApp() {
             else alert((await res.json().catch(() => ({}))).message || 'Could not add category.');
         },
 
+        async addStatus(name) {
+            const res = await fetch('/statuses/quick', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': window.__CSRF_TOKEN__, 'Accept': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            if (res.ok) {
+                // Reload the full page to update sidebar and board columns
+                window.location.reload();
+            } else {
+                alert((await res.json().catch(() => ({}))).message || 'Could not add status.');
+            }
+        },
+
         openCreateModal() {
             this._openModal(null, {
                 title: '', description: '', priority: 'medium',

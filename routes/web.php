@@ -40,10 +40,11 @@ Route::middleware('auth')->group(function () {
     // Users (assignee list)
     Route::get('/users', [UserController::class, 'index']);
 
-    // Admin-only routes (statuses only — categories accessible to all)
-    Route::middleware('role:admin')->group(function () {
-        Route::resource('statuses', StatusController::class)->except(['show']);
-    });
+    // Statuses management — accessible to all authenticated users
+    Route::post('/statuses/quick', [StatusController::class, 'quickStore']);
+    Route::resource('statuses', StatusController::class)->except(['show']);
+    Route::post('/statuses/{status}/move', [StatusController::class, 'move']);
+    Route::patch('/statuses/{status}/rename', [StatusController::class, 'rename']);
 
     // Categories management — accessible to all authenticated users
     Route::resource('countries', CountryController::class)->except(['show']);
