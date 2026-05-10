@@ -15,26 +15,10 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
-
-        // Add board_id to countries, statuses, tasks
-        Schema::table('countries', function (Blueprint $table) {
-            $table->foreignId('board_id')->nullable()->constrained('boards')->cascadeOnDelete()->after('id');
-        });
-
-        Schema::table('statuses', function (Blueprint $table) {
-            $table->foreignId('board_id')->nullable()->constrained('boards')->cascadeOnDelete()->after('id');
-        });
-
-        Schema::table('tasks', function (Blueprint $table) {
-            $table->foreignId('board_id')->nullable()->constrained('boards')->cascadeOnDelete()->after('id');
-        });
     }
 
     public function down(): void
     {
-        Schema::table('tasks', fn($t) => $t->dropForeign(['board_id']));
-        Schema::table('statuses', fn($t) => $t->dropForeign(['board_id']));
-        Schema::table('countries', fn($t) => $t->dropForeign(['board_id']));
         Schema::dropIfExists('boards');
     }
 };
