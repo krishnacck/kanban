@@ -42,6 +42,21 @@ class User extends Authenticatable
         return $this->hasMany(Task::class, 'assigned_to');
     }
 
+    public function countries()
+    {
+        return $this->hasMany(Country::class);
+    }
+
+    public function statuses()
+    {
+        return $this->hasMany(Status::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

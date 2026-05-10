@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\UserDefaults;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,6 +52,9 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => 'user',
         ]);
+
+        // Seed default statuses and categories for the new user
+        UserDefaults::seedForUser($user);
 
         Auth::login($user);
 

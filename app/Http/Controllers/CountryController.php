@@ -12,14 +12,16 @@ class CountryController extends Controller
 {
     public function index()
     {
-        $countries = Country::orderBy('order')->get();
+        $countries = Country::where('user_id', auth()->id())->orderBy('order')->get();
         return view('admin.countries.index', compact('countries'));
     }
 
     public function store(StoreCountryRequest $request)
     {
-        Country::create($request->validated());
-        return redirect()->route('countries.index')->with('success', 'Country created.');
+        $data = $request->validated();
+        $data['user_id'] = auth()->id();
+        Country::create($data);
+        return redirect()->route('countries.index')->with('success', 'Category created.');
     }
 
     /**
@@ -32,19 +34,45 @@ class CountryController extends Controller
             'order' => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $userId = auth()->id();
+        $maxOrder = Country::where('user_id', $userId)->max('order') ?? 0;
+
         $country = Country::create([
-            'name'  => $validated['name'],
-            'order' => $validated['order'] ?? (Country::max('order') + 1),
+            'name'    => $validated['name'],
+            'order'   => $validated['order'] ?? ($maxOrder + 1),
+            'user_id' => $userId,
         ]);
 
         return response()->json($country);
     }
 
     /**
-     * Quick rename — available to all authenticated users (not admin-only).
+     * Search for similar category names across all users to avoid duplicates.
+     */
+    public function suggest(Request $request)
+    {
+        $query = $request->input('q', '');
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $suggestions = Country::where('name', 'like', '%' . $query . '%')
+            ->select('name')
+            ->distinct()
+            ->orderBy('name')
+            ->limit(10)
+            ->pluck('name');
+
+        return response()->json($suggestions);
+    }
+
+    /**
+     * Quick rename — available to all authenticated users.
      */
     public function rename(Request $request, Country $country)
     {
+        $this->authorizeOwnership($country);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
@@ -59,9 +87,11 @@ class CountryController extends Controller
      */
     public function move(Request $request, Country $country)
     {
+        $this->authorizeOwnership($country);
+
         $direction = $request->input('direction'); // 'up' or 'down'
 
-        $countries = Country::orderBy('order')->get();
+        $countries = Country::where('user_id', auth()->id())->orderBy('order')->get();
         $index     = $countries->search(fn($c) => $c->id === $country->id);
 
         if ($direction === 'up' && $index > 0) {
@@ -82,16 +112,20 @@ class CountryController extends Controller
 
     public function update(UpdateCountryRequest $request, Country $country)
     {
+        $this->authorizeOwnership($country);
+
         $country->update($request->validated());
 
         if ($request->expectsJson()) {
             return response()->json($country->fresh());
         }
-        return redirect()->route('countries.index')->with('success', 'Country updated.');
+        return redirect()->route('countries.index')->with('success', 'Category updated.');
     }
 
     public function destroy(Country $country)
     {
+        $this->authorizeOwnership($country);
+
         try {
             $country->deleteOrFail();
         } catch (ValidationException $e) {
@@ -102,8 +136,15 @@ class CountryController extends Controller
         }
 
         if (request()->expectsJson()) {
-            return response()->json(['message' => 'Country deleted.']);
+            return response()->json(['message' => 'Category deleted.']);
         }
-        return redirect()->route('countries.index')->with('success', 'Country deleted.');
+        return redirect()->route('countries.index')->with('success', 'Category deleted.');
+    }
+
+    private function authorizeOwnership(Country $country): void
+    {
+        if ($country->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+            abort(403, 'You do not own this category.');
+        }
     }
 }

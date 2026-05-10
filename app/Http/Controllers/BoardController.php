@@ -13,14 +13,17 @@ class BoardController extends Controller
 {
     public function index(Request $request)
     {
-        $countries = Country::orderBy('order')->get();
-        $statuses  = Status::orderBy('order')->get();
+        $user = auth()->user();
+
+        $countries = Country::where('user_id', $user->id)->orderBy('order')->get();
+        $statuses  = Status::where('user_id', $user->id)->orderBy('order')->get();
         $users     = User::orderBy('name')->get();
 
         $groupRow = $request->input('group_row', 'category');
         $groupCol = $request->input('group_col', 'status');
 
         $query = Task::with(['assignee', 'status', 'country'])
+            ->where('user_id', $user->id)
             ->orderByRaw("CASE WHEN priority = 'high' THEN 0 WHEN priority = 'medium' THEN 1 ELSE 2 END")
             ->orderBy('position');
 
@@ -50,7 +53,6 @@ class BoardController extends Controller
             }
         }
 
-        // For default category×status, pass is_completed flag through
         $isAjax = $request->ajax() || $request->header('X-Requested-With') === 'XMLHttpRequest';
 
         $viewData = compact('rowGroups', 'colGroups', 'matrix', 'groupRow', 'groupCol', 'rowLabel', 'colLabel', 'statuses', 'countries');
@@ -119,7 +121,6 @@ class BoardController extends Controller
                 return [$groups, 'Assignee'];
 
             case 'month':
-                // Collect all months present in tasks, plus "No date"
                 $months = $tasks->filter(fn($t) => $t->due_date)
                     ->map(fn($t) => $t->due_date->format('Y-m'))
                     ->unique()->sort()->values();

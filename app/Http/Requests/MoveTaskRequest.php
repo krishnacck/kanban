@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class MoveTaskRequest extends FormRequest
 {
@@ -10,9 +11,11 @@ class MoveTaskRequest extends FormRequest
 
     public function rules(): array
     {
+        $userId = auth()->id();
+
         return [
-            'status_id' => ['required', 'exists:statuses,id'],
-            'country_id' => ['required', 'exists:countries,id'],
+            'status_id' => ['required', Rule::exists('statuses', 'id')->where('user_id', $userId)],
+            'country_id' => ['required', Rule::exists('countries', 'id')->where('user_id', $userId)],
             'position' => ['required', 'integer', 'min:0'],
         ];
     }

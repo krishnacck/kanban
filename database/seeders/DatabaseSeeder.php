@@ -10,8 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
+            StatusSeeder::class,   // Seeds defaults for users without statuses
             CountrySeeder::class,
-            StatusSeeder::class,
             TaskSeeder::class,
         ]);
     }

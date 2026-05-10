@@ -2,23 +2,27 @@
 
 namespace Database\Seeders;
 
+use App\Helpers\UserDefaults;
 use App\Models\Status;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class StatusSeeder extends Seeder
 {
     public function run(): void
     {
-        $statuses = [
-            ['name' => 'Backlog',     'color' => '#94a3b8', 'order' => 0, 'is_completed' => false],
-            ['name' => 'To Do',       'color' => '#6366f1', 'order' => 1, 'is_completed' => false],
-            ['name' => 'In Progress', 'color' => '#f59e0b', 'order' => 2, 'is_completed' => false],
-            ['name' => 'Review',      'color' => '#8b5cf6', 'order' => 3, 'is_completed' => false],
-            ['name' => 'Completed',   'color' => '#22c55e', 'order' => 4, 'is_completed' => true],
-        ];
+        // Seed default statuses for all users who don't have any yet
+        $usersWithoutStatuses = User::whereDoesntHave('statuses')->get();
 
-        foreach ($statuses as $status) {
-            Status::firstOrCreate(['name' => $status['name']], $status);
+        foreach ($usersWithoutStatuses as $user) {
+            UserDefaults::seedForUser($user);
+        }
+
+        // If no users exist yet (fresh install), output a note
+        if (User::count() === 0) {
+            $this->command?->info('No users found. Default statuses will be created when users register.');
+        } else {
+            $this->command?->info("Seeded defaults for {$usersWithoutStatuses->count()} user(s).");
         }
     }
 }

@@ -53,4 +53,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/countries/{country}/move', [CountryController::class, 'move']);
     Route::patch('/countries/{country}/rename', [CountryController::class, 'rename']);
     Route::post('/categories', [CountryController::class, 'quickStore']);
+    Route::get('/categories/suggest', [CountryController::class, 'suggest']);
 });

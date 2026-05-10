@@ -41,13 +41,35 @@
     <div x-show="showAdd" x-cloak
         class="mb-4 bg-white rounded-xl border border-indigo-200 shadow-sm p-4">
         <h2 class="text-sm font-semibold text-gray-700 mb-3">New Category</h2>
-        <form method="POST" action="{{ route('countries.store') }}" class="flex items-end gap-3 flex-wrap">
+        <form method="POST" action="{{ route('countries.store') }}" class="flex items-end gap-3 flex-wrap"
+            x-data="{ catName: '', suggestions: [], selectedIdx: -1 }"
+            @submit.prevent="$el.submit()">
             @csrf
-            <div class="flex-1 min-w-[160px]">
+            <div class="flex-1 min-w-[160px] relative">
                 <label class="block text-xs font-medium text-gray-500 mb-1">Name *</label>
                 <input type="text" name="name" placeholder="e.g. Engineering, Marketing…"
                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                    required autofocus>
+                    required autofocus
+                    x-model="catName"
+                    @input.debounce.300ms="if(catName.length >= 2){ fetch('/categories/suggest?q='+encodeURIComponent(catName), {headers:{'Accept':'application/json'}}).then(r=>r.json()).then(d=>{suggestions=d; selectedIdx=-1;}) } else { suggestions=[] }"
+                    @keydown.down.prevent="selectedIdx = Math.min(selectedIdx + 1, suggestions.length - 1)"
+                    @keydown.up.prevent="selectedIdx = Math.max(selectedIdx - 1, 0)"
+                    @keydown.enter="if(selectedIdx >= 0 && suggestions[selectedIdx]){ catName = suggestions[selectedIdx]; suggestions = []; $event.preventDefault(); }"
+                    @click.outside="suggestions = []">
+
+                {{-- Suggestions dropdown --}}
+                <div x-show="suggestions.length > 0" x-cloak
+                    class="absolute left-0 right-0 top-full z-50 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto">
+                    <div class="px-3 py-1.5 text-xs text-gray-500 font-medium border-b border-gray-100">
+                        Similar names already in use:
+                    </div>
+                    <template x-for="(s, idx) in suggestions" :key="s">
+                        <button type="button" @click="catName = s; suggestions = []"
+                            :class="idx === selectedIdx ? 'bg-indigo-50' : ''"
+                            class="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-indigo-50 cursor-pointer"
+                            x-text="s"></button>
+                    </template>
+                </div>
             </div>
             <div class="w-24">
                 <label class="block text-xs font-medium text-gray-500 mb-1">Icon / Code</label>

@@ -10,6 +10,10 @@ class TaskMoveController extends Controller
 {
     public function move(MoveTaskRequest $request, Task $task)
     {
+        if ($task->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
         $sourceStatusId  = $task->status_id;
         $sourceCountryId = $task->country_id;
 

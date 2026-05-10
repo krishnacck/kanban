@@ -10,9 +10,14 @@ class Status extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'color', 'order', 'board_id', 'is_completed'];
+    protected $fillable = ['name', 'color', 'order', 'board_id', 'is_completed', 'user_id'];
 
     protected $casts = ['is_completed' => 'boolean'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function board()
     {

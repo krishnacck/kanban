@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class CountrySeeder extends Seeder
@@ -16,8 +17,16 @@ class CountrySeeder extends Seeder
             ['name' => 'France', 'code' => 'FR', 'order' => 4],
         ];
 
-        foreach ($countries as $country) {
-            Country::firstOrCreate(['code' => $country['code']], $country);
+        // Seed categories for all users who only have the default "General" category
+        $users = User::all();
+
+        foreach ($users as $user) {
+            foreach ($countries as $country) {
+                Country::firstOrCreate(
+                    ['code' => $country['code'], 'user_id' => $user->id],
+                    array_merge($country, ['user_id' => $user->id])
+                );
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\UserDefaults;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -30,6 +31,8 @@ class GoogleAuthController extends Controller
             ]);
         }
 
+        $isNew = !User::where('email', $googleUser->getEmail())->exists();
+
         $user = User::updateOrCreate(
             ['email' => $googleUser->getEmail()],
             [
@@ -39,6 +42,11 @@ class GoogleAuthController extends Controller
                 'role' => 'user',
             ]
         );
+
+        // Seed default statuses and categories for new users
+        if ($isNew) {
+            UserDefaults::seedForUser($user);
+        }
 
         Auth::login($user, true);
 

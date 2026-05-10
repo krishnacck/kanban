@@ -419,4 +419,43 @@ function boardApp() {
 }
 
 window.boardApp = boardApp;
+
+function categorySuggest() {
+    return {
+        adding: false,
+        name: '',
+        suggestions: [],
+        selectedIdx: -1,
+
+        async fetchSuggestions() {
+            const q = this.name.trim();
+            if (q.length < 2) {
+                this.suggestions = [];
+                return;
+            }
+            try {
+                const res = await fetch(`/categories/suggest?q=${encodeURIComponent(q)}`, {
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': window.__CSRF_TOKEN__ },
+                });
+                if (res.ok) {
+                    this.suggestions = await res.json();
+                    this.selectedIdx = -1;
+                }
+            } catch {
+                this.suggestions = [];
+            }
+        },
+
+        submitCategory() {
+            const val = this.name.trim();
+            if (!val) return;
+            this.$dispatch('add-category', val);
+            this.name = '';
+            this.adding = false;
+            this.suggestions = [];
+        },
+    };
+}
+
+window.categorySuggest = categorySuggest;
 Alpine.start();

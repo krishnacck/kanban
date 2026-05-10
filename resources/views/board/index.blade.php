@@ -77,22 +77,41 @@
     </button>
     @endforeach
 
-    {{-- Quick add --}}
-    <div x-data="{ adding: false, name: '' }" style="margin-top:0.25rem;">
+    {{-- Quick add with suggestions --}}
+    <div x-data="categorySuggest()" style="margin-top:0.25rem;">
         <button x-show="!adding" @click="adding = true; $nextTick(() => $refs.catInput.focus())"
             class="sidebar-link" style="color:#79747E; font-size:0.8125rem;">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Add category
         </button>
-        <div x-show="adding" x-cloak style="margin-top:0.25rem; background:#F7F2FA; border-radius:12px; padding:0.5rem;">
+        <div x-show="adding" x-cloak style="margin-top:0.25rem; background:#F7F2FA; border-radius:12px; padding:0.5rem; position:relative;">
             <input x-ref="catInput" x-model="name" type="text" placeholder="Category name…"
                 style="width:100%; background:transparent; border:none; outline:none; font-size:0.8125rem; color:#1C1B1F; padding:0.25rem 0.25rem 0.375rem; border-bottom:2px solid #6750A4;"
-                @keydown.enter="if(name.trim()){ $dispatch('add-category', name.trim()); name=''; adding=false; }"
-                @keydown.escape="adding=false; name=''">
+                @input.debounce.300ms="fetchSuggestions()"
+                @keydown.enter="submitCategory()"
+                @keydown.escape="adding=false; name=''; suggestions=[]"
+                @keydown.down.prevent="selectedIdx = Math.min(selectedIdx + 1, suggestions.length - 1)"
+                @keydown.up.prevent="selectedIdx = Math.max(selectedIdx - 1, 0)">
+
+            {{-- Suggestions dropdown --}}
+            <div x-show="suggestions.length > 0" x-cloak
+                style="position:absolute; left:0; right:0; top:100%; z-index:50; background:#fff; border:1px solid #E7E0EC; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.12); margin-top:0.25rem; max-height:150px; overflow-y:auto;">
+                <div style="padding:0.375rem 0.5rem; font-size:0.6875rem; color:#79747E; font-weight:600; border-bottom:1px solid #F4EFF4;">
+                    Similar names already exist:
+                </div>
+                <template x-for="(s, idx) in suggestions" :key="s">
+                    <button @click="name = s; suggestions = []; submitCategory()"
+                        :style="idx === selectedIdx ? 'background:#E8DEF8;' : ''"
+                        style="width:100%; text-align:left; padding:0.5rem 0.75rem; border:none; background:transparent; font-size:0.8125rem; color:#1C1B1F; cursor:pointer; display:block;"
+                        @mouseenter="selectedIdx = idx"
+                        x-text="s"></button>
+                </template>
+            </div>
+
             <div style="display:flex; gap:0.375rem; margin-top:0.5rem;">
-                <button @click="if(name.trim()){ $dispatch('add-category', name.trim()); name=''; adding=false; }"
+                <button @click="submitCategory()"
                     style="flex:1; font-size:0.75rem; background:#6750A4; color:#fff; border:none; border-radius:100px; padding:0.375rem; cursor:pointer; font-weight:500;">Add</button>
-                <button @click="adding=false; name=''"
+                <button @click="adding=false; name=''; suggestions=[]"
                     style="flex:1; font-size:0.75rem; background:transparent; color:#49454F; border:1px solid #CAC4D0; border-radius:100px; padding:0.375rem; cursor:pointer;">Cancel</button>
             </div>
         </div>

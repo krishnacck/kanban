@@ -10,7 +10,12 @@ class Country extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'order', 'board_id'];
+    protected $fillable = ['name', 'code', 'order', 'board_id', 'user_id'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function board()
     {

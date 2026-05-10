@@ -20,6 +20,7 @@ class Task extends Model
         'created_by',
         'assigned_to',
         'board_id',
+        'user_id',
     ];
 
     protected $casts = [

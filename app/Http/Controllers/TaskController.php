@@ -11,7 +11,8 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Task::with(['status', 'country', 'assignee']);
+        $query = Task::with(['status', 'country', 'assignee'])
+            ->where('user_id', auth()->id());
 
         if ($request->filled('status_id')) {
             $query->where('status_id', $request->status_id);
@@ -40,6 +41,7 @@ class TaskController extends Controller
     {
         $data = $request->validated();
         $data['created_by'] = auth()->id();
+        $data['user_id'] = auth()->id();
         $data['priority'] = $data['priority'] ?? 'low';
 
         $task = new Task($data);
@@ -51,11 +53,7 @@ class TaskController extends Controller
 
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        $user = auth()->user();
-
-        if (!$user->isAdmin() && $task->created_by !== $user->id && $task->assigned_to !== $user->id) {
-            return response()->json(['message' => 'Forbidden.'], 403);
-        }
+        $this->authorizeOwnership($task);
 
         $task->update($request->validated());
 
@@ -64,6 +62,8 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
+        $this->authorizeOwnership($task);
+
         $statusId  = $task->status_id;
         $countryId = $task->country_id;
 
@@ -76,7 +76,12 @@ class TaskController extends Controller
 
     public function complete(Task $task)
     {
-        $completedStatus = \App\Models\Status::where('is_completed', true)->orderBy('order')->first();
+        $this->authorizeOwnership($task);
+
+        $completedStatus = \App\Models\Status::where('user_id', auth()->id())
+            ->where('is_completed', true)
+            ->orderBy('order')
+            ->first();
 
         if (!$completedStatus) {
             return response()->json(['message' => 'No completed status configured.'], 422);
@@ -85,7 +90,10 @@ class TaskController extends Controller
         // Toggle: if already in a completed status, move back to first non-completed status
         $currentStatus = $task->status;
         if ($currentStatus && $currentStatus->is_completed) {
-            $firstStatus = \App\Models\Status::where('is_completed', false)->orderBy('order')->first();
+            $firstStatus = \App\Models\Status::where('user_id', auth()->id())
+                ->where('is_completed', false)
+                ->orderBy('order')
+                ->first();
             if ($firstStatus) {
                 $task->status_id = $firstStatus->id;
                 $task->assignEndPosition();
@@ -101,5 +109,12 @@ class TaskController extends Controller
         }
 
         return response()->json($task->fresh()->load(['status', 'country', 'assignee']));
+    }
+
+    private function authorizeOwnership(Task $task): void
+    {
+        if ($task->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+            abort(403, 'You do not own this task.');
+        }
     }
 }
