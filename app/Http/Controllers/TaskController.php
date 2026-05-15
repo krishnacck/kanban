@@ -43,6 +43,7 @@ class TaskController extends Controller
         $data['created_by'] = auth()->id();
         $data['user_id'] = auth()->id();
         $data['priority'] = $data['priority'] ?? 'low';
+        $data['start_date'] = $data['start_date'] ?? now()->toDateString();
 
         $task = new Task($data);
         $task->assignEndPosition();

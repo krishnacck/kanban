@@ -17,6 +17,7 @@ class UpdateTaskRequest extends FormRequest
             'status_id' => ['sometimes', 'required', 'exists:statuses,id'],
             'country_id' => ['sometimes', 'required', 'exists:countries,id'],
             'assigned_to' => ['nullable', 'exists:users,id'],
+            'start_date' => ['nullable', 'date'],
             'due_date' => ['nullable', 'date'],
         ];
     }

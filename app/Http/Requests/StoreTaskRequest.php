@@ -20,6 +20,7 @@ class StoreTaskRequest extends FormRequest
             'status_id' => ['required', Rule::exists('statuses', 'id')->where('user_id', $userId)],
             'country_id' => ['required', Rule::exists('countries', 'id')->where('user_id', $userId)],
             'assigned_to' => ['nullable', 'exists:users,id'],
+            'start_date' => ['nullable', 'date'],
             'due_date' => ['nullable', 'date'],
         ];
     }

@@ -59,8 +59,8 @@
                 </div>
             </div>
 
-            {{-- Priority + Due Date --}}
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            {{-- Priority + Start Date + Due Date --}}
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;">
                 <div>
                     <label style="display:block;font-size:0.75rem;font-weight:600;color:#49454F;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.375rem;">Priority</label>
                     <select x-model="modal.form.priority"
@@ -70,6 +70,12 @@
                         <option value="medium">🟡 Medium</option>
                         <option value="low">🟢 Low</option>
                     </select>
+                </div>
+                <div>
+                    <label style="display:block;font-size:0.75rem;font-weight:600;color:#49454F;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.375rem;">Start Date</label>
+                    <input type="date" x-model="modal.form.start_date"
+                        style="width:100%;background:#F4EFF4;border:none;border-bottom:2px solid #79747E;border-radius:4px 4px 0 0;padding:0.75rem 1rem;font-size:0.875rem;color:#1C1B1F;outline:none;"
+                        onfocus="this.style.borderBottomColor='#6750A4'" onblur="this.style.borderBottomColor='#79747E'">
                 </div>
                 <div>
                     <label style="display:block;font-size:0.75rem;font-weight:600;color:#49454F;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.375rem;">Due Date</label>
