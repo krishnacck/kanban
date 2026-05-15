@@ -29,6 +29,7 @@ function boardApp() {
                 status_id: '',
                 country_id: '',
                 assigned_to: '',
+                start_date: new Date().toISOString().split('T')[0],
                 due_date: '',
             },
         },
@@ -311,7 +312,7 @@ function boardApp() {
                 title: '', description: '', priority: 'medium',
                 status_id:  window.__STATUSES__?.[0]?.id  ?? '',
                 country_id: window.__COUNTRIES__?.[0]?.id ?? '',
-                assigned_to: '', due_date: '',
+                assigned_to: '', start_date: new Date().toISOString().split('T')[0], due_date: '',
             });
         },
 
@@ -320,7 +321,7 @@ function boardApp() {
                 title: '', description: '', priority: 'medium',
                 status_id:  statusId  || (window.__STATUSES__?.[0]?.id  ?? ''),
                 country_id: countryId || (window.__COUNTRIES__?.[0]?.id ?? ''),
-                assigned_to: '', due_date: '',
+                assigned_to: '', start_date: new Date().toISOString().split('T')[0], due_date: '',
             });
         },
 
@@ -382,7 +383,7 @@ function boardApp() {
             this._openModal(parseInt(d.id), {
                 title: d.title || '', description: d.description || '', priority: d.priority || 'medium',
                 status_id: d.status_id, country_id: d.country_id,
-                assigned_to: d.assigned_to || '', due_date: d.due_date || '',
+                assigned_to: d.assigned_to || '', start_date: d.start_date || '', due_date: d.due_date || '',
             });
         },
         ctxRenameTask()    { this.ctxMenu.open = false; this._openRenamePopover('task',    this.ctxMenu.data.id, 'Rename task',     this.ctxMenu.data.title); },

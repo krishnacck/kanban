@@ -19,6 +19,7 @@
         'status_id'   => $task->status_id,
         'country_id'  => $task->country_id,
         'assigned_to' => $task->assigned_to,
+        'start_date'  => $task->start_date?->format('Y-m-d'),
         'due_date'    => $task->due_date?->format('Y-m-d'),
     ]);
     $ctxJson = json_encode([
@@ -29,6 +30,7 @@
         'status_id'   => $task->status_id,
         'country_id'  => $task->country_id,
         'assigned_to' => $task->assigned_to,
+        'start_date'  => $task->start_date?->format('Y-m-d'),
         'due_date'    => $task->due_date?->format('Y-m-d'),
     ]);
 @endphp
